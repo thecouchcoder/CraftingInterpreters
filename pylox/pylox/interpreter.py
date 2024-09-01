@@ -1,5 +1,5 @@
-from expr import Binary, Grouping, Literal, Unary
-from token_type import TokenType
+from pylox.expr import Binary, Grouping, Literal, Unary
+from pylox.token_type import TokenType
 
 
 class Interpreter:

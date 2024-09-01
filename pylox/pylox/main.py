@@ -1,11 +1,11 @@
 import sys
 
-from error_reporter import ErrorReporter
-from scanner import Scanner
+from pylox.error_reporter import ErrorReporter
+from pylox.scanner import Scanner
 
 
 def run_file(file_name: str):
-    with open(file_name, mode='r') as file:
+    with open(file_name, mode="r") as file:
         source = file.read()
     run(source)
     if errorReporter.had_error:
@@ -28,7 +28,7 @@ def run(source: str):
 
 errorReporter = ErrorReporter()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) > 2:
         print("Usage: jlox [script]")
         exit(1)

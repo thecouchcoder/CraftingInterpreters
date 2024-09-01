@@ -1,9 +1,9 @@
 import unittest
 
-from expr import Unary, Binary, Literal, Grouping
-from interpreter import Interpreter
-from lox_token import Token
-from token_type import TokenType
+from pylox.expr import Unary, Binary, Literal, Grouping
+from pylox.interpreter import Interpreter
+from pylox.token_type import TokenType
+from pylox.tokens import Token
 
 
 class TestInterpreter(unittest.TestCase):

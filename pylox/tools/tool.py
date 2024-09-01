@@ -36,14 +36,20 @@ def define_class(file, class_name, base_name, fields):
     file += assign
     file += "\n"
     file += "    def accept(self, visitor):\n"
-    file += f"        return visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n"
+    file += (
+        f"        return visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n"
+    )
     return file
 
 
 if __name__ == "__main__":
-    define_ast("/../interpreter/",
-               "Expr",
-               ["Binary   : Expr left, Token operator, Expr right",
-                "Grouping : Expr expression",
-                "Literal  : Object value",
-                "Unary    : Token operator, Expr right"])
+    define_ast(
+        "../pylox/",
+        "Expr",
+        [
+            "Binary   : Expr left, Token operator, Expr right",
+            "Grouping : Expr expression",
+            "Literal  : Object value",
+            "Unary    : Token operator, Expr right",
+        ],
+    )

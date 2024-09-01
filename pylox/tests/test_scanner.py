@@ -1,8 +1,8 @@
 import unittest
 
-from error_reporter import ErrorReporter
-from scanner import Scanner
-from token_type import TokenType
+from pylox.error_reporter import ErrorReporter
+from pylox.scanner import Scanner
+from pylox.token_type import TokenType
 
 
 class ScannerTest(unittest.TestCase):
@@ -66,8 +66,8 @@ class ScannerTest(unittest.TestCase):
         self.assertFalse(error_reporter.had_error)
 
     def test_can_scan_multi_line_strings(self):
-        source = ('''"goodbye
-                  world"''')
+        source = '''"goodbye
+                  world"'''
         error_reporter = ErrorReporter()
         scanner = Scanner(source, error_reporter)
         tokens = scanner.scan_tokens()
@@ -75,7 +75,7 @@ class ScannerTest(unittest.TestCase):
         self.assertFalse(error_reporter.had_error)
 
     def test_can_scan_numbers(self):
-        source = '123 123.456'
+        source = "123 123.456"
         error_reporter = ErrorReporter()
         scanner = Scanner(source, error_reporter)
         tokens = scanner.scan_tokens()
@@ -99,5 +99,5 @@ class ScannerTest(unittest.TestCase):
         self.assertFalse(error_reporter.had_error)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
