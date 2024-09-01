@@ -1,5 +1,3 @@
-
-
 class Binary:
     def __init__(self, left, operator, right):
         self.left = left
