@@ -1,4 +1,4 @@
-from pylox.error_reporter import ErrorReporter
+from pylox.errors import ErrorReporter
 from pylox.token_type import TokenType, get_keyword
 from pylox.tokens import Token
 

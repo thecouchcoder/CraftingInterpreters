@@ -1,30 +1,40 @@
-from pylox.expr import Binary, Grouping, Literal, Unary
-from pylox.token_type import TokenType
+from .errors import PyloxRuntimeError, ErrorReporter
+from .expr import Binary, Grouping, Literal, Unary
+from .token_type import TokenType
+from .tokens import Token
 
 
 class Interpreter:
+    def __init__(self, err_reporter: ErrorReporter):
+        self.err_reporter = err_reporter
+
     def visit_binary_expr(self, expr: Binary):
         left = self._evaluate(expr.left)
         right = self._evaluate(expr.right)
-        # Again not casting since Python is dynamic
         match expr.operator.type:
             case TokenType.MINUS:
-                return left - right
+                self._validate_number(expr.operator, left, right)
+                return float(left) - float(right)
             case TokenType.SLASH:
-                return left / right
+                self._validate_number(expr.operator, left, right)
+                return float(left) / float(right)
             case TokenType.STAR:
-                return left * right
+                self._validate_number(expr.operator, left, right)
+                return float(left) * float(right)
             case TokenType.PLUS:
-                # No additional logic needed here since Python + already handles string concatenation and we didn't cast in the first place
-                return left + right
+                return self._validate_plus(expr.operator, left, right)
             case TokenType.GREATER:
-                return left > right
+                self._validate_number(expr.operator, left, right)
+                return float(left) > float(right)
             case TokenType.GREATER_EQUAL:
-                return left >= right
+                self._validate_number(expr.operator, left, right)
+                return float(left) >= float(right)
             case TokenType.LESS:
-                return left < right
+                self._validate_number(expr.operator, left, right)
+                return float(left) < float(right)
             case TokenType.LESS_EQUAL:
-                return left <= right
+                self._validate_number(expr.operator, left, right)
+                return float(left) <= float(right)
             # Pyton equality seems to be the same as lox so no additonal logic is needed
             case TokenType.EQUAL_EQUAL:
                 return left == right
@@ -39,10 +49,10 @@ class Interpreter:
 
     def visit_unary_expr(self, expr: Unary):
         right = self._evaluate(expr.right)
-        # I did not do the casting here since Python is dynamic I believe we'll be fine
         match expr.operator.type:
             case TokenType.MINUS:
-                return -right
+                self._validate_number(expr.operator, right)
+                return -float(right)
             case TokenType.BANG:
                 # Pretty sure Python's not behaves the same as Lox so no additional logic is needed
                 return not right
@@ -52,5 +62,46 @@ class Interpreter:
     def _evaluate(self, expr):
         return expr.accept(self)
 
+    def _validate_number(self, operator: Token, *operands):
+        for o in operands:
+            try:
+                float(o)
+            except:
+                raise PyloxRuntimeError(operator, f"{o} must be a number")
+
+    def _validate_plus(self, operator: Token, left, right):
+        try:
+            lf = float(left)
+            rf = float(right)
+            return lf + rf
+        except:
+            # TODO not really sure if this is right, but the book doesn't give any examples
+            if isinstance(left, str) and isinstance(right, str):
+                return left + right
+            elif isinstance(left, str):
+                raise PyloxRuntimeError(
+                    operator, f"{left} and {right} must both be strings"
+                )
+            else:
+                raise PyloxRuntimeError(
+                    operator, f"{left} and {right} must both a numbers"
+                )
+
+    def _stringify_expression_result(self, value):
+        if value is None:
+            return "nil"
+
+        text = str(value)
+        if isinstance(value, float):
+            if text.endswith(".0"):
+                text = text[:-2]
+            return text
+        return text
+
     def interpret(self, expr):
-        return self._evaluate(expr)
+        try:
+            value = self._evaluate(expr)
+            print(self._stringify_expression_result(value))
+            return value
+        except PyloxRuntimeError as err:
+            self.err_reporter.runtime_error(err)

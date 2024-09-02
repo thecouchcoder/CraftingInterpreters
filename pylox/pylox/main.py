@@ -1,6 +1,7 @@
 import sys
 
-from pylox.error_reporter import ErrorReporter
+from pylox.errors import ErrorReporter
+from pylox.interpreter import Interpreter
 from pylox.scanner import Scanner
 
 
@@ -8,7 +9,7 @@ def run_file(file_name: str):
     with open(file_name, mode="r") as file:
         source = file.read()
     run(source)
-    if errorReporter.had_error:
+    if errorReporter.had_error or errorReporter.had_runtime_error:
         exit(1)
     return
 
@@ -18,12 +19,16 @@ def run_prompt():
         source = input("> ")
         run(source)
         errorReporter.had_error = False
+        errorReporter.had_runtime_error = False
 
 
 def run(source: str):
     s = Scanner(source, errorReporter)
     tokens = s.scan_tokens()
     print(tokens)
+
+    i = Interpreter(errorReporter)
+    # i.interpret(expression)
 
 
 errorReporter = ErrorReporter()

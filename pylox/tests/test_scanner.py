@@ -1,6 +1,6 @@
 import unittest
 
-from pylox.error_reporter import ErrorReporter
+from pylox.errors import ErrorReporter
 from pylox.scanner import Scanner
 from pylox.token_type import TokenType
 
