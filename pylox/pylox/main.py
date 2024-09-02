@@ -2,6 +2,7 @@ import sys
 
 from pylox.errors import ErrorReporter
 from pylox.interpreter import Interpreter
+from pylox.parser import Parser
 from pylox.scanner import Scanner
 
 
@@ -27,8 +28,14 @@ def run(source: str):
     tokens = s.scan_tokens()
     print(tokens)
 
+    p = Parser(errorReporter, tokens)
+    expression = p.parse()
+
+    if errorReporter.had_error:
+        return
+
     i = Interpreter(errorReporter)
-    # i.interpret(expression)
+    i.interpret(expression)
 
 
 errorReporter = ErrorReporter()
