@@ -44,7 +44,7 @@ def define_class(file, class_name, base_name, fields):
 
 if __name__ == "__main__":
     define_ast(
-        "../pylox/",
+        "../src/",
         "Expr",
         [
             "Binary   : Expr left, Token operator, Expr right",

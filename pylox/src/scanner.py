@@ -1,6 +1,6 @@
-from pylox.errors import ErrorReporter
-from pylox.token_type import TokenType, get_keyword
-from pylox.tokens import Token
+from .errors import ErrorReporter
+from .token_type import TokenType, get_keyword
+from .tokens import Token
 
 
 class Scanner:

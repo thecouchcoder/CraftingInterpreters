@@ -35,7 +35,7 @@ class Interpreter:
             case TokenType.LESS_EQUAL:
                 self._validate_number(expr.operator, left, right)
                 return float(left) <= float(right)
-            # Pyton equality seems to be the same as lox so no additonal logic is needed
+            # Pyton equality seems to be the same as src so no additonal logic is needed
             case TokenType.EQUAL_EQUAL:
                 return left == right
             case TokenType.BANG_EQUAL:

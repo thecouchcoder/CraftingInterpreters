@@ -1,5 +1,5 @@
-from pylox.token_type import TokenType
-from pylox.tokens import Token
+from .token_type import TokenType
+from .tokens import Token
 
 
 class PyloxRuntimeError(Exception):

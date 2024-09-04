@@ -1,7 +1,7 @@
-from pylox.tokens import Token
 from .errors import PyloxParseError, ErrorReporter
 from .expr import Binary, Unary, Literal, Grouping
 from .token_type import TokenType
+from .tokens import Token
 
 
 class Parser:

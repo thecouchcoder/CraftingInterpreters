@@ -1,9 +1,9 @@
 import unittest
 
-from pylox.ast_printer import AstPrinter
-from pylox.errors import ErrorReporter
-from pylox.parser import Parser
-from pylox.scanner import Scanner
+from src.ast_printer import AstPrinter
+from src.errors import ErrorReporter
+from src.parser import Parser
+from src.scanner import Scanner
 
 
 class TestParser(unittest.TestCase):

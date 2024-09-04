@@ -1,9 +1,9 @@
 import sys
 
-from pylox.errors import ErrorReporter
-from pylox.interpreter import Interpreter
-from pylox.parser import Parser
-from pylox.scanner import Scanner
+from src.errors import ErrorReporter
+from src.interpreter import Interpreter
+from src.parser import Parser
+from src.scanner import Scanner
 
 
 def run_file(file_name: str):

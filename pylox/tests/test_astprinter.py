@@ -1,9 +1,9 @@
 import unittest
 
-from pylox.ast_printer import AstPrinter
-from pylox.expr import *
-from pylox.token_type import TokenType
-from pylox.tokens import Token
+from src.ast_printer import AstPrinter
+from src.expr import *
+from src.token_type import TokenType
+from src.tokens import Token
 
 
 class ASTPrinterTest(unittest.TestCase):

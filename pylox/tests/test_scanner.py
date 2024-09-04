@@ -1,8 +1,8 @@
 import unittest
 
-from pylox.errors import ErrorReporter
-from pylox.scanner import Scanner
-from pylox.token_type import TokenType
+from src.errors import ErrorReporter
+from src.scanner import Scanner
+from src.token_type import TokenType
 
 
 class ScannerTest(unittest.TestCase):

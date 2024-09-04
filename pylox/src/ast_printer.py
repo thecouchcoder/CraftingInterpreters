@@ -1,4 +1,4 @@
-from pylox.expr import Unary, Literal, Grouping, Binary
+from .expr import Unary, Literal, Grouping, Binary
 
 
 class AstPrinter:

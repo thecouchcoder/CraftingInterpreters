@@ -1,10 +1,10 @@
 import unittest
 
-from pylox.errors import ErrorReporter
-from pylox.expr import Unary, Binary, Literal, Grouping
-from pylox.interpreter import Interpreter
-from pylox.token_type import TokenType
-from pylox.tokens import Token
+from src.errors import ErrorReporter
+from src.expr import Unary, Binary, Literal, Grouping
+from src.interpreter import Interpreter
+from src.token_type import TokenType
+from src.tokens import Token
 
 
 class TestInterpreter(unittest.TestCase):
