@@ -30,6 +30,7 @@ def run(source: str):
 
     p = Parser(errorReporter, tokens)
     expression = p.parse()
+    print(expression)
 
     if errorReporter.had_error:
         return

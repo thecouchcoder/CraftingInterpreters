@@ -37,9 +37,9 @@ class Interpreter:
                 return float(left) <= float(right)
             # Pyton equality seems to be the same as src so no additonal logic is needed
             case TokenType.EQUAL_EQUAL:
-                return left == right
+                return str(left) == str(right)
             case TokenType.BANG_EQUAL:
-                return not (left == right)
+                return not (str(left) == str(right))
 
     def visit_grouping_expr(self, expr: Grouping):
         return self._evaluate(expr.expression)

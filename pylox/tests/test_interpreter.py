@@ -58,3 +58,15 @@ class TestInterpreter(unittest.TestCase):
         err_reporter = ErrorReporter()
         result = Interpreter(err_reporter).interpret(expression)
         self.assertEqual(3.0, result)
+
+    # 3.0 + 2.0 == 5.0
+    def test_can_compare_equality(self):
+        expression = Binary(
+            Binary(Literal("3.0"), Token(TokenType.PLUS, "+", None, 1), Literal("2.0")),
+            Token(TokenType.EQUAL_EQUAL, "==", None, 1),
+            Literal("5.0"),
+        )
+
+        err_reporter = ErrorReporter()
+        result = Interpreter(err_reporter).interpret(expression)
+        self.assertTrue(result)
