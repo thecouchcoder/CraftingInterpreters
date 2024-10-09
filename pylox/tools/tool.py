@@ -39,17 +39,36 @@ def define_class(file, class_name, base_name, fields):
     file += (
         f"        return visitor.visit_{class_name.lower()}_{base_name.lower()}(self)\n"
     )
+    file += f"\n    def __eq__(self, other):\n"
+    file += f"        return (\n"
+    for id in identifiers:
+        file += f"            self.{id} == other.{id} and\n"
+    file = file[:-4]
+    file += "\n        )"
     return file
 
 
 if __name__ == "__main__":
+    output_dir = ""
     define_ast(
-        "../src/",
+        output_dir,
         "Expr",
         [
+            "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Object value",
             "Unary    : Token operator, Expr right",
+            "Variable : Token name",
+        ],
+    )
+    define_ast(
+        output_dir,
+        "Stmt",
+        [
+            "Block      : list[Stmt] statements",
+            "Expression : Expr expression",
+            "Print      : Expr expression",
+            "Var        : Token name, Expr initializer",
         ],
     )

@@ -29,14 +29,13 @@ def run(source: str):
     print(tokens)
 
     p = Parser(errorReporter, tokens)
-    expression = p.parse()
-    print(expression)
+    statements = p.parse()
 
     if errorReporter.had_error:
         return
 
     i = Interpreter(errorReporter)
-    i.interpret(expression)
+    i.interpret(statements)
 
 
 errorReporter = ErrorReporter()

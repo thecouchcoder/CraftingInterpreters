@@ -1,5 +1,6 @@
-from .errors import PyloxParseError, ErrorReporter
-from .expr import Binary, Unary, Literal, Grouping
+from .errors import PyloxParseError, ErrorReporter, PyloxRuntimeError
+from .expr import Binary, Unary, Literal, Grouping, Variable, Assign
+from .stmt import Var, Print, Expression, Block
 from .token_type import TokenType
 from .tokens import Token
 
@@ -11,7 +12,20 @@ class Parser:
         self.current = 0
 
     def _expression(self):
-        return self._equality()
+        return self._assignment()
+
+    def _assignment(self):
+        expr = self._equality()
+
+        if self._match(TokenType.EQUAL):
+            equals = self._previous()
+            value = self._assignment()
+
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+            raise PyloxRuntimeError(equals, "Invalid assignment target.")
+        return expr
 
     def _equality(self):
         expression = self._comparison()
@@ -66,6 +80,8 @@ class Parser:
             return Literal(None)
         elif self._match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self._previous().literal)
+        elif self._match(TokenType.IDENTIFIER):
+            return Variable(self._previous())
         elif self._match(TokenType.LEFT_PAREN):
             expression = self._expression()
             self._consume(TokenType.RIGHT_PAREN, "Expect ) after expression")
@@ -128,8 +144,56 @@ class Parser:
 
             self._advance()
 
-    def parse(self):
+    def _declaration(self):
         try:
-            return self._expression()
+            if self._match(TokenType.VAR):
+                return self._var_declaration()
+            return self._statement()
         except PyloxParseError:
+            self._synchronize()
             return None
+
+    def _var_declaration(self):
+        identifier = self._consume(TokenType.IDENTIFIER, "Expect variable name.")
+
+        initializer = None
+        if self._match(TokenType.EQUAL):
+            initializer = self._expression()
+
+        self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Var(identifier, initializer)
+
+    def _statement(self):
+        if self._match(TokenType.PRINT):
+            return self._print_statement()
+        if self._match(TokenType.LEFT_BRACE):
+            return self._block_statement()
+        return self._expression_statement()
+
+    def _print_statement(self):
+        value = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+
+    def _expression_statement(self):
+        value = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Expression(value)
+
+    def _block_statement(self):
+        statements = self._define_block()
+        return Block(statements)
+
+    def _define_block(self):
+        statements = list()
+        while not self._check(TokenType.RIGHT_BRACE) and not self._is_at_end():
+            statements.append(self._declaration())
+        self._consume(TokenType.RIGHT_BRACE, "Expect '}' at end of block.")
+        return statements
+
+    def parse(self):
+        statements = []
+        while not self._is_at_end():
+            statements.append(self._declaration())
+
+        return statements

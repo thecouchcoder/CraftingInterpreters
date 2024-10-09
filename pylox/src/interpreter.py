@@ -1,5 +1,8 @@
+from expr import Assign
+from .environment import Environment
 from .errors import PyloxRuntimeError, ErrorReporter
-from .expr import Binary, Grouping, Literal, Unary
+from .expr import Binary, Grouping, Literal, Unary, Variable
+from .stmt import Expression, Print, Var, Block
 from .token_type import TokenType
 from .tokens import Token
 
@@ -7,6 +10,7 @@ from .tokens import Token
 class Interpreter:
     def __init__(self, err_reporter: ErrorReporter):
         self.err_reporter = err_reporter
+        self.env = Environment()
 
     def visit_binary_expr(self, expr: Binary):
         left = self._evaluate(expr.left)
@@ -59,6 +63,31 @@ class Interpreter:
             case _:
                 return None
 
+    def visit_variable_expr(self, expr: Variable):
+        return self.env.get(expr.name)
+
+    def visit_assign_expr(self, expr: Assign):
+        value = self._evaluate(expr.value)
+        self.env.assign(expr.name, value)
+        return value
+
+    def visit_expression_stmt(self, stmt: Expression):
+        self._evaluate(stmt.expression)
+
+    def visit_print_stmt(self, stmt: Print):
+        value = self._evaluate(stmt.expression)
+        print(self._stringify_expression_result(value))
+
+    def visit_var_stmt(self, stmt: Var):
+        value = None
+        if stmt.initializer:
+            value = self._evaluate(stmt.initializer)
+        self.env.define(stmt.name.lexeme, value)
+
+    def visit_block_stmt(self, stmt: Block):
+        block_env = Environment(self.env)
+        self._execute_block(stmt.statements, block_env)
+
     def _evaluate(self, expr):
         return expr.accept(self)
 
@@ -98,10 +127,21 @@ class Interpreter:
             return text
         return text
 
-    def interpret(self, expr):
+    def _execute(self, stmt):
+        stmt.accept(self)
+
+    def _execute_block(self, statements: list, env: Environment):
+        previous = self.env
         try:
-            value = self._evaluate(expr)
-            print(self._stringify_expression_result(value))
-            return value
+            self.env = env
+            for statement in statements:
+                self._execute(statement)
+        finally:
+            self.env = previous
+
+    def interpret(self, statements: list):
+        try:
+            for stmt in statements:
+                self._execute(stmt)
         except PyloxRuntimeError as err:
             self.err_reporter.runtime_error(err)
