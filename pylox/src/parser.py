@@ -1,6 +1,6 @@
 from .errors import PyloxParseError, ErrorReporter, PyloxRuntimeError
 from .expr import Binary, Unary, Literal, Grouping, Variable, Assign
-from .stmt import Var, Print, Expression, Block
+from .stmt import Var, Print, Expression, Block, ReplExpression
 from .token_type import TokenType
 from .tokens import Token
 
@@ -144,11 +144,11 @@ class Parser:
 
             self._advance()
 
-    def _declaration(self):
+    def _declaration(self, repl: bool):
         try:
             if self._match(TokenType.VAR):
                 return self._var_declaration()
-            return self._statement()
+            return self._statement(repl)
         except PyloxParseError:
             self._synchronize()
             return None
@@ -163,12 +163,16 @@ class Parser:
         self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Var(identifier, initializer)
 
-    def _statement(self):
+    def _statement(self, repl: bool):
         if self._match(TokenType.PRINT):
             return self._print_statement()
         if self._match(TokenType.LEFT_BRACE):
             return self._block_statement()
-        return self._expression_statement()
+        return (
+            self._expression_statement()
+            if repl == False
+            else self._repl_expression_statement()
+        )
 
     def _print_statement(self):
         value = self._expression()
@@ -180,6 +184,10 @@ class Parser:
         self._consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Expression(value)
 
+    def _repl_expression_statement(self):
+        value = self._expression()
+        return ReplExpression(value)
+
     def _block_statement(self):
         statements = self._define_block()
         return Block(statements)
@@ -187,13 +195,13 @@ class Parser:
     def _define_block(self):
         statements = list()
         while not self._check(TokenType.RIGHT_BRACE) and not self._is_at_end():
-            statements.append(self._declaration())
+            statements.append(self._declaration(False))
         self._consume(TokenType.RIGHT_BRACE, "Expect '}' at end of block.")
         return statements
 
-    def parse(self):
+    def parse(self, repl: bool):
         statements = []
         while not self._is_at_end():
-            statements.append(self._declaration())
+            statements.append(self._declaration(repl))
 
         return statements

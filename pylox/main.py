@@ -18,18 +18,18 @@ def run_file(file_name: str):
 def run_prompt():
     while True:
         source = input("> ")
-        run(source)
+        run(source, True)
         errorReporter.had_error = False
         errorReporter.had_runtime_error = False
 
 
-def run(source: str):
+def run(source: str, repl: bool = False):
     s = Scanner(source, errorReporter)
     tokens = s.scan_tokens()
     print(tokens)
 
     p = Parser(errorReporter, tokens)
-    statements = p.parse()
+    statements = p.parse(repl)
 
     if errorReporter.had_error:
         return

@@ -1,8 +1,7 @@
-from expr import Assign
 from .environment import Environment
 from .errors import PyloxRuntimeError, ErrorReporter
-from .expr import Binary, Grouping, Literal, Unary, Variable
-from .stmt import Expression, Print, Var, Block
+from .expr import Binary, Grouping, Literal, Unary, Variable, Assign
+from .stmt import Expression, Print, Var, Block, ReplExpression
 from .token_type import TokenType
 from .tokens import Token
 
@@ -73,6 +72,10 @@ class Interpreter:
 
     def visit_expression_stmt(self, stmt: Expression):
         self._evaluate(stmt.expression)
+
+    def visit_replexpression_stmt(self, stmt: ReplExpression):
+        value = self._evaluate(stmt.expression)
+        print(self._stringify_expression_result(value))
 
     def visit_print_stmt(self, stmt: Print):
         value = self._evaluate(stmt.expression)

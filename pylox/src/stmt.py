@@ -24,6 +24,18 @@ class Expression:
             self.expression == other.expression 
         )
 
+class ReplExpression:
+    def __init__(self, expression):
+        self.expression = expression
+
+    def accept(self, visitor):
+        return visitor.visit_replexpression_stmt(self)
+
+    def __eq__(self, other):
+        return (
+            self.expression == other.expression 
+        )
+
 class Print:
     def __init__(self, expression):
         self.expression = expression

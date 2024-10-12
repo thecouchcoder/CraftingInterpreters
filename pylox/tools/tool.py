@@ -66,9 +66,10 @@ if __name__ == "__main__":
         output_dir,
         "Stmt",
         [
-            "Block      : list[Stmt] statements",
-            "Expression : Expr expression",
-            "Print      : Expr expression",
-            "Var        : Token name, Expr initializer",
+            "Block          : list[Stmt] statements",
+            "Expression     : Expr expression",
+            "ReplExpression : Expr expression",
+            "Print          : Expr expression",
+            "Var            : Token name, Expr initializer",
         ],
     )
