@@ -58,6 +58,7 @@ if __name__ == "__main__":
             "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Object value",
+            "Logical  : Expr left, Token operator, Expr right",
             "Unary    : Token operator, Expr right",
             "Variable : Token name",
         ],
@@ -68,7 +69,9 @@ if __name__ == "__main__":
         [
             "Block      : list[Stmt] statements",
             "Expression : Expr expression",
+            "Conditional: Expr condition, Stmt if_stmt, Stmt else_stmt",
             "Print      : Expr expression",
             "Var        : Token name, Expr initializer",
+            "While      : Expr condition, Stmt body",
         ],
     )

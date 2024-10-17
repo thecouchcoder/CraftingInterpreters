@@ -54,6 +54,22 @@ class Literal:
             self.value == other.value 
         )
 
+class Logical:
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def accept(self, visitor):
+        return visitor.visit_logical_expr(self)
+
+    def __eq__(self, other):
+        return (
+            self.left == other.left and
+            self.operator == other.operator and
+            self.right == other.right 
+        )
+
 class Unary:
     def __init__(self, operator, right):
         self.operator = operator

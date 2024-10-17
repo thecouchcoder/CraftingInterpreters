@@ -5,19 +5,23 @@ from .tokens import Token
 class Environment:
     def __init__(self, enclosing=None):
         self.enclosing = enclosing
-        self._values = dict()
+        self.values = dict()
 
     def define(self, identifier: str, value):
-        self._values[identifier] = value
+        self.values[identifier] = value
 
     def get(self, name: Token):
-        if name.lexeme in self._values:
-            return self._values[name.lexeme]
+        if name.lexeme in self.values:
+            return self.values[name.lexeme]
         elif self.enclosing is not None:
             return self.enclosing.get(name)
         else:
             raise PyloxRuntimeError(name, f"Undefined variable {name.lexeme}.")
 
     def assign(self, name: Token, value):
-        self.get(name)
-        self.define(name.lexeme, value)
+        if name.lexeme in self.values:
+            self.values[name.lexeme] = value
+        elif self.enclosing is not None:
+            self.enclosing.assign(name, value)
+        else:
+            raise PyloxRuntimeError(name, f"Undefined variable {name.lexeme}.")

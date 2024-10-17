@@ -1,8 +1,7 @@
-from expr import Assign
 from .environment import Environment
 from .errors import PyloxRuntimeError, ErrorReporter
-from .expr import Binary, Grouping, Literal, Unary, Variable
-from .stmt import Expression, Print, Var, Block
+from .expr import Binary, Grouping, Literal, Unary, Variable, Assign, Logical
+from .stmt import Expression, Print, Var, Block, Conditional, While
 from .token_type import TokenType
 from .tokens import Token
 
@@ -78,6 +77,16 @@ class Interpreter:
         value = self._evaluate(stmt.expression)
         print(self._stringify_expression_result(value))
 
+    def visit_conditional_stmt(self, stmt: Conditional):
+        if self._evaluate(stmt.condition):
+            self._execute(stmt.if_stmt)
+        elif stmt.else_stmt is not None:
+            self._execute(stmt.else_stmt)
+
+    def visit_while_stmt(self, stmt: While):
+        while self._evaluate(stmt.condition):
+            self._execute(stmt.body)
+
     def visit_var_stmt(self, stmt: Var):
         value = None
         if stmt.initializer:
@@ -87,6 +96,13 @@ class Interpreter:
     def visit_block_stmt(self, stmt: Block):
         block_env = Environment(self.env)
         self._execute_block(stmt.statements, block_env)
+
+    def visit_logical_expr(self, expr: Logical):
+        left = self._evaluate(expr.left)
+        if expr.operator.type == TokenType.AND:
+            return left and self._evaluate(expr.right)
+        elif expr.operator.type == TokenType.OR:
+            return left or self._evaluate(expr.right)
 
     def _evaluate(self, expr):
         return expr.accept(self)

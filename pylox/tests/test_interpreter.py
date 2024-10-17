@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import patch
 
-from expr import Variable, Assign
+from expr import Logical
 from src.errors import ErrorReporter
-from src.expr import Unary, Binary, Literal, Grouping
+from src.expr import Unary, Binary, Literal, Grouping, Variable, Assign
 from src.interpreter import Interpreter
-from src.stmt import Print, Var, Block
+from src.stmt import Print, Var, Block, Conditional, While
 from src.token_type import TokenType
 from src.tokens import Token
 
@@ -122,3 +122,99 @@ class TestInterpreter(unittest.TestCase):
 
         mock_print.assert_any_call("42")
         mock_print.assert_any_call("24")
+
+    # var x = 0;
+    # if (x == 42) print "if"
+    # else print "else
+    @patch("builtins.print")
+    def test_can_interpret_if_else(self, mock_print):
+        x_token = Token(TokenType.VAR, "x", None, 1)
+        declare = Var(x_token, Literal(0))
+
+        expression = Binary(
+            Variable(Token(TokenType.IDENTIFIER, "x", "x", 1)),
+            Token(TokenType.EQUAL_EQUAL, "==", None, 1),
+            Literal("42"),
+        )
+        then_branch = Print(Literal("if"))
+        else_branch = Print(Literal("else"))
+        conditional = Conditional(expression, then_branch, else_branch)
+
+        program = [declare, conditional]
+        err_reporter = ErrorReporter()
+        Interpreter(err_reporter).interpret(program)
+        mock_print.assert_any_call("else")
+
+    # if (x and/or y and/or z) print "truthy"
+    # else print "falsy"
+    @patch("builtins.print")
+    def test_can_interpret_logic(self, mock_print):
+        test_cases = [
+            (42, 42, 42, TokenType.AND, "truthy"),
+            (42, 42, None, TokenType.AND, "falsy"),
+            (42, 42, 42, TokenType.OR, "truthy"),
+            (42, 42, None, TokenType.OR, "truthy"),
+            (None, None, None, TokenType.OR, "falsy"),
+        ]
+        x_token = Token(TokenType.VAR, "x", None, 1)
+        y_token = Token(TokenType.VAR, "y", None, 1)
+        z_token = Token(TokenType.VAR, "z", None, 1)
+        and_token = Token(TokenType.AND, "and", "and", 1)
+        or_token = Token(TokenType.AND, "or", "or", 1)
+        then_branch = Print(Literal("truthy"))
+        else_branch = Print(Literal("falsy"))
+
+        for x, y, z, op, expected in test_cases:
+            declare_x = Var(x_token, Literal(x))
+            declare_y = Var(y_token, Literal(y))
+            declare_z = Var(z_token, Literal(z))
+
+            op1 = and_token if op == TokenType.AND else or_token
+            op2 = and_token if op == TokenType.AND else or_token
+            expression = Logical(
+                Logical(Variable(x_token), op1, Variable(y_token)),
+                op2,
+                Variable(z_token),
+            )
+
+            conditional = Conditional(expression, then_branch, else_branch)
+
+            program = [declare_x, declare_y, declare_z, conditional]
+            err_reporter = ErrorReporter()
+            Interpreter(err_reporter).interpret(program)
+            mock_print.assert_any_call(expected)
+
+    # while (x < 4) { print x; x = x+1; }
+    @patch("builtins.print")
+    def test_can_interpret_while_loop(self, mock_print):
+        x_token = Token(TokenType.VAR, "x", "x", 1)
+        declare_x = Var(x_token, Literal(0))
+
+        x_variable = Variable(Token(TokenType.IDENTIFIER, "x", "x", 1))
+        while_stmt = While(
+            Binary(
+                x_variable,
+                Token(TokenType.LESS, "<", None, 1),
+                Literal("4"),
+            ),
+            Block(
+                [
+                    Print(x_variable),
+                    Assign(
+                        x_token,
+                        Binary(
+                            x_variable, Token(TokenType.PLUS, "+", None, 1), Literal(1)
+                        ),
+                    ),
+                ]
+            ),
+        )
+
+        program = [declare_x, while_stmt]
+        err_reporter = ErrorReporter()
+        Interpreter(err_reporter).interpret(program)
+        mock_print.assert_any_call("0")
+        mock_print.assert_any_call("1")
+        mock_print.assert_any_call("2")
+        mock_print.assert_any_call("3")
+        # mock_print.assert_called_with("4")
